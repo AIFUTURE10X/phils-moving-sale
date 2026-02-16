@@ -1,0 +1,17 @@
+{
+  "name": "moving-sale",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bake-photos.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "@vercel/blob": "^2.2.0"
+  }
+}
