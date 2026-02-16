@@ -152,9 +152,50 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f}
 .list-row .row-status.available{background:#dcfce7;color:#166534}
 .list-row .row-status.sold{background:#fee2e2;color:#991b1b}
 @media(max-width:560px){.list-row{flex-wrap:wrap;gap:.3rem;padding:.7rem 1rem}.list-row .row-desc{display:none}.list-row .row-name{flex:1}.list-row .row-price{margin-left:auto}}
+/* Deposit popup overlay */
+.deposit-popup-overlay{display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;animation:fadeIn .3s}
+.deposit-popup-overlay.hidden{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.deposit-popup{background:#fff;border-radius:20px;padding:2.5rem 2rem;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.deposit-popup .popup-icon{font-size:3rem;margin-bottom:.8rem}
+.deposit-popup h2{font-size:1.4rem;font-weight:800;color:#1d1d1f;margin-bottom:.6rem}
+.deposit-popup .popup-highlight{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;border-radius:12px;padding:1.2rem;margin:1rem 0;font-size:.95rem;line-height:1.5}
+.deposit-popup .popup-highlight strong{color:#fbbf24}
+.deposit-popup .popup-items{font-size:.85rem;color:#6b7280;margin:.8rem 0;line-height:1.6}
+.deposit-popup .popup-items strong{color:#1d1d1f}
+.deposit-popup .popup-btn{background:#0f3460;color:#fff;border:none;padding:.8rem 2.5rem;border-radius:99px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;margin-top:.5rem}
+.deposit-popup .popup-btn:hover{background:#1a4a7a}
+/* Deposit banner */
+.deposit-banner{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;text-align:center;padding:.8rem 1rem;font-size:.9rem;font-weight:500;line-height:1.4}
+.deposit-banner strong{color:#fbbf24}
+.deposit-banner a{color:#fbbf24;text-decoration:underline}
+/* Late pickup tag on cards */
+.late-pickup-tag{display:inline-flex;align-items:center;gap:.3rem;background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:99px;margin-bottom:.3rem;letter-spacing:.3px}
 </style>
 </head>
 <body>
+<!-- Deposit popup on first visit -->
+<div class="deposit-popup-overlay" id="depositPopup">
+<div class="deposit-popup">
+<div class="popup-icon">🏠✈️</div>
+<h2>Moving to Thailand — Everything Must Go!</h2>
+<div class="popup-highlight">
+📅 Some items are <strong>available for pickup from 28 March only</strong> (still in use until we move).<br><br>
+💰 To secure these items, a <strong>50% non-refundable deposit</strong> is required. Balance due on pickup day.
+</div>
+<div class="popup-items">
+<strong>Deposit items include:</strong> Beds, Fridge, Washer &amp; Dryer, Lounge Chairs, and other daily-use items
+</div>
+<button class="popup-btn" id="popupClose">👍 Got it, let me browse!</button>
+</div>
+</div>
+
+<!-- Persistent deposit banner -->
+<div class="deposit-banner">
+📅 Some items <strong>available from 28 March only</strong> — 50% deposit required to secure. <a href="tel:0412397443">Call Phil</a> to arrange.
+</div>
+
 <div class="header">
 <h1>Phil's Moving Sale - Everything Must Go!</h1>
 <p class="subtitle">Chinderah, NSW - Moving to Thailand, all items must sell!</p>
@@ -361,7 +402,7 @@ function render(cat){
     const badgeClass=status==='sold'?'badge-sold':'badge-available';
     const badgeText=status==='sold'?'Sold':'Available';
     
-    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><button class="move-left" data-item-id="${itemId}" title="Move left">◀</button><div class="move-controls"><button class="move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body"><div class="cat-label" data-item-id="${itemId}" data-field="category">${cat}</div><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
+    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><button class="move-left" data-item-id="${itemId}" title="Move left">◀</button><div class="move-controls"><button class="move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${(typeof LATE_PICKUP_NAMES!=='undefined'&&LATE_PICKUP_NAMES.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':''}<div class="cat-label" data-item-id="${itemId}" data-field="category">${cat}</div><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
   });
   // Add "Add New Item" card at end
   gridEl.innerHTML+=`<div class="add-item-card" id="addItemCard"><div class="plus">+</div><span>Add New Item</span></div>`;
@@ -979,6 +1020,23 @@ async function initApp() {
   await loadData();
   render("All");
 }
+
+// Deposit popup - show once per session
+const depositPopup = document.getElementById('depositPopup');
+const popupClose = document.getElementById('popupClose');
+if(sessionStorage.getItem('depositPopupSeen')){
+  depositPopup.classList.add('hidden');
+}
+popupClose.addEventListener('click',()=>{
+  depositPopup.classList.add('hidden');
+  sessionStorage.setItem('depositPopupSeen','1');
+});
+depositPopup.addEventListener('click',e=>{
+  if(e.target===depositPopup){depositPopup.classList.add('hidden');sessionStorage.setItem('depositPopupSeen','1');}
+});
+
+// Late pickup items - tag these in the render
+const LATE_PICKUP_NAMES = ['fridge','washer','dryer','laundry combo','lounge chair','double bed','bed #1','bed #2','bundle deal'];
 
 // Start the app
 initApp().catch(error => {
