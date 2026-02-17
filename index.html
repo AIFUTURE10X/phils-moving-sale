@@ -116,9 +116,9 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f}
 .lightbox .lb-caption{color:#fff;margin-top:1rem;font-size:.95rem;font-weight:500;text-align:center}
 .lightbox .lb-counter{color:rgba(255,255,255,.6);font-size:.8rem;margin-top:.3rem}
 .footer{text-align:center;padding:2rem 1rem;color:#9ca3af;font-size:.8rem}
-.cat-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;font-weight:600;margin-bottom:.15rem;cursor:pointer;border-bottom:1px dashed transparent;transition:border-color .2s;display:inline-block}
-.cat-label:hover{border-bottom-color:#d1d5db}
-.cat-label select{font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;font-weight:600;border:1px solid #d1d5db;border-radius:6px;padding:.2rem .3rem;font-family:inherit;color:#9ca3af;background:#fff}
+.cat-select{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600;border:1px solid #e5e7eb;border-radius:8px;padding:.3rem .5rem;font-family:inherit;color:#6b7280;background:#f9fafb;cursor:pointer;margin-bottom:.3rem;appearance:auto;-webkit-appearance:menulist;min-width:100px}
+.cat-select:hover{border-color:#0f3460;color:#0f3460}
+.cat-select:focus{outline:2px solid #0f3460;outline-offset:-1px;border-color:#0f3460;color:#0f3460}
 .card .delete-item{position:absolute;top:8px;right:8px;background:rgba(220,38,38,.9);color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:20;opacity:0;transition:opacity .2s;line-height:1}
 .card:hover .delete-item{opacity:1}
 .card .delete-item:hover{background:rgba(185,28,28,1)}
@@ -403,12 +403,15 @@ function render(cat){
     const name=item.name;
     const price=item.price||'Contact for price';
     const desc=item.description||'No description';
-    const cat=item.category;
+    const cat=item.category||'Misc';
     const status=item.status||'available';
     const badgeClass=status==='sold'?'badge-sold':'badge-available';
     const badgeText=status==='sold'?'Sold':'Available';
-    
-    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><div class="drag-handle">⠿ Drag</div><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><div class="move-dpad"><button class="dpad-up move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="dpad-left move-left" data-item-id="${itemId}" title="Move left">◀</button><button class="dpad-right move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="dpad-down move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':''}<div class="cat-label" data-item-id="${itemId}" data-field="category">${cat}</div><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
+    const allCats=["Furniture","Appliances","Kitchen","Electronics","Bedroom/Bathroom","Car","Misc"];
+    const catOptionsHTML=allCats.map(c=>`<option value="${c}"${c===cat?' selected':''}>${c}</option>`).join('');
+    const latePickupHTML=(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':'';
+
+    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><div class="drag-handle">⠿ Drag</div><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><div class="move-dpad"><button class="dpad-up move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="dpad-left move-left" data-item-id="${itemId}" title="Move left">◀</button><button class="dpad-right move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="dpad-down move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${latePickupHTML}<select class="cat-select" data-item-id="${itemId}">${catOptionsHTML}</select><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
   });
   // Add "Add New Item" card at end
   gridEl.innerHTML+=`<div class="add-item-card" id="addItemCard"><div class="plus">+</div><span>Add New Item</span></div>`;
@@ -510,28 +513,17 @@ function render(cat){
       edEl.addEventListener('focus',startEdit);
     });
 
-    // Category inline edit
-    el.closest('.card').querySelectorAll('.cat-label[data-field="category"]').forEach(catEl=>{
-      catEl.addEventListener('click',async function(){
-        if(catEl.querySelector('select')) return;
-        const itemId=parseInt(catEl.getAttribute('data-item-id'));
-        const current=catEl.textContent.trim();
-        const allCats=["Furniture","Appliances","Kitchen","Electronics","Bedroom/Bathroom","Car","Misc"];
-        const optionsHTML=allCats.map(c=>`<option value="${c}"${c===current?' selected':''}>${c}</option>`).join('');
-        catEl.innerHTML=`<select>${optionsHTML}</select>`;
-        const sel=catEl.querySelector('select');
-        sel.focus();
-        async function finish(){
-          const item=items.find(i=>i.id===itemId);
-          if(item) {
-            item.category=sel.value;
-            await updateItemInDB(itemId,{category:sel.value});
-            const activeTab=tabsEl.querySelector('button.active').textContent;
-            render(activeTab);
-          }
+    // Category dropdown change
+    el.closest('.card').querySelectorAll('.cat-select').forEach(sel=>{
+      sel.addEventListener('change',async function(){
+        const itemId=parseInt(sel.getAttribute('data-item-id'));
+        const item=items.find(i=>i.id===itemId);
+        if(item) {
+          item.category=sel.value;
+          await updateItemInDB(itemId,{category:sel.value});
+          const activeTab=tabsEl.querySelector('button.active').textContent;
+          render(activeTab);
         }
-        sel.addEventListener('change',finish);
-        sel.addEventListener('blur',finish);
       });
     });
 
