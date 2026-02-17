@@ -173,6 +173,15 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f}
 .deposit-banner a{color:#fbbf24;text-decoration:underline}
 /* Late pickup tag on cards */
 .late-pickup-tag{display:inline-flex;align-items:center;gap:.3rem;background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:99px;margin-bottom:.3rem;letter-spacing:.3px}
+/* Card drag-and-drop */
+.card .drag-handle{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:25;opacity:0;transition:opacity .15s;cursor:grab;background:rgba(15,52,96,.85);color:#fff;padding:3px 14px;border-radius:0 0 8px 8px;font-size:.7rem;font-weight:600;display:flex;align-items:center;gap:4px;user-select:none;white-space:nowrap}
+.card:hover .drag-handle{opacity:1}
+.drag-handle:active{cursor:grabbing}
+.card.dragging{opacity:.3;transform:scale(.95)!important;transition:opacity .15s,transform .15s}
+.card.drag-over{outline:3px solid #0f3460;outline-offset:-3px;transform:translateY(-6px)!important;box-shadow:0 8px 30px rgba(15,52,96,.25)!important;transition:transform .15s,box-shadow .15s}
+.card.drag-over::after{content:'Drop here';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(15,52,96,.9);color:#fff;padding:.5rem 1.2rem;border-radius:10px;font-size:.85rem;font-weight:700;z-index:30;pointer-events:none}
+.touch-drag-ghost{position:fixed;pointer-events:none;z-index:1000;opacity:.8;transform:rotate(1.5deg);box-shadow:0 15px 50px rgba(0,0,0,.35);border-radius:16px;overflow:hidden;transition:none}
+@media(max-width:560px){.card .drag-handle{opacity:.6;font-size:.65rem;padding:2px 10px}}
 </style>
 </head>
 <body>
@@ -311,24 +320,17 @@ async function fetchAPI(endpoint, options = {}) {
 
 // Load all data from API
 async function loadData() {
-  console.log('Loading data from API...');
-  
-  // Load items
   const itemsData = await fetchAPI('items');
   if (itemsData) {
     items = itemsData;
-    console.log(`Loaded ${items.length} items`);
   }
-  
-  // Load photos
+
   const photosData = await fetchAPI('photos');
   if (photosData) {
     photos = photosData;
-    // Initialize slide positions
     Object.keys(photos).forEach(itemId => {
       slidePos[itemId] = 0;
     });
-    console.log(`Loaded photos for ${Object.keys(photos).length} items`);
   }
 }
 
@@ -403,7 +405,7 @@ function render(cat){
     const badgeClass=status==='sold'?'badge-sold':'badge-available';
     const badgeText=status==='sold'?'Sold':'Available';
     
-    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><div class="move-dpad"><button class="dpad-up move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="dpad-left move-left" data-item-id="${itemId}" title="Move left">◀</button><button class="dpad-right move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="dpad-down move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':''}<div class="cat-label" data-item-id="${itemId}" data-field="category">${cat}</div><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
+    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><div class="drag-handle">⠿ Drag</div><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><div class="move-dpad"><button class="dpad-up move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="dpad-left move-left" data-item-id="${itemId}" title="Move left">◀</button><button class="dpad-right move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="dpad-down move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':''}<div class="cat-label" data-item-id="${itemId}" data-field="category">${cat}</div><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
   });
   // Add "Add New Item" card at end
   gridEl.innerHTML+=`<div class="add-item-card" id="addItemCard"><div class="plus">+</div><span>Add New Item</span></div>`;
@@ -571,6 +573,8 @@ function render(cat){
       }
     });
   });
+  // Initialize card drag-and-drop after rendering
+  initCardDrag();
 }
 
 // Move/reorder items
@@ -597,7 +601,157 @@ async function moveItem(itemId, direction, steps=1) {
   }
 }
 
-// No longer need these functions - data comes from API
+// === Card Drag & Drop ===
+let cardDragId = null;
+
+function initCardDrag() {
+  const cards = gridEl.querySelectorAll('.card[data-item-id]');
+
+  cards.forEach(card => {
+    const handle = card.querySelector('.drag-handle');
+    if (!handle) return;
+
+    // Desktop: only allow drag when mousedown is on the handle
+    card.addEventListener('mousedown', e => {
+      card.draggable = !!e.target.closest('.drag-handle');
+    });
+
+    card.addEventListener('dragstart', e => {
+      if (!card.draggable) { e.preventDefault(); return; }
+      cardDragId = parseInt(card.getAttribute('data-item-id'));
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(cardDragId));
+      try { e.dataTransfer.setDragImage(card, card.offsetWidth / 2, 30); } catch(err) {}
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      card.draggable = false;
+      gridEl.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+      cardDragId = null;
+    });
+
+    card.addEventListener('dragover', e => {
+      if (!cardDragId) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const targetId = parseInt(card.getAttribute('data-item-id'));
+      if (targetId !== cardDragId && !card.classList.contains('dragging')) {
+        gridEl.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      }
+    });
+
+    card.addEventListener('dragleave', e => {
+      if (!card.contains(e.relatedTarget)) card.classList.remove('drag-over');
+    });
+
+    card.addEventListener('drop', async e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const targetId = parseInt(card.getAttribute('data-item-id'));
+      if (cardDragId && cardDragId !== targetId) {
+        await reorderCards(cardDragId, targetId);
+      }
+      cardDragId = null;
+    });
+
+    // === Touch drag support (mobile) ===
+    let touchGhost = null;
+    let isTouchDragging = false;
+
+    handle.addEventListener('touchstart', e => {
+      const touch = e.touches[0];
+      isTouchDragging = true;
+      cardDragId = parseInt(card.getAttribute('data-item-id'));
+      card.classList.add('dragging');
+
+      touchGhost = card.cloneNode(true);
+      touchGhost.className = 'touch-drag-ghost';
+      touchGhost.style.width = card.offsetWidth + 'px';
+      touchGhost.style.left = (touch.clientX - card.offsetWidth / 2) + 'px';
+      touchGhost.style.top = (touch.clientY - 40) + 'px';
+      document.body.appendChild(touchGhost);
+
+      if (navigator.vibrate) navigator.vibrate(30);
+    }, { passive: true });
+
+    handle.addEventListener('touchmove', e => {
+      if (!isTouchDragging) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+
+      if (touchGhost) {
+        touchGhost.style.left = (touch.clientX - touchGhost.offsetWidth / 2) + 'px';
+        touchGhost.style.top = (touch.clientY - 40) + 'px';
+      }
+
+      // Find card under touch point (hide ghost temporarily)
+      if (touchGhost) touchGhost.style.display = 'none';
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (touchGhost) touchGhost.style.display = '';
+
+      const targetCard = el?.closest('.card[data-item-id]');
+      gridEl.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+      if (targetCard) {
+        const targetId = parseInt(targetCard.getAttribute('data-item-id'));
+        if (targetId !== cardDragId) targetCard.classList.add('drag-over');
+      }
+    }, { passive: false });
+
+    handle.addEventListener('touchend', async () => {
+      if (!isTouchDragging) return;
+      isTouchDragging = false;
+      card.classList.remove('dragging');
+
+      if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+
+      const targetCard = gridEl.querySelector('.drag-over');
+      gridEl.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+
+      if (targetCard) {
+        const targetId = parseInt(targetCard.getAttribute('data-item-id'));
+        if (cardDragId && cardDragId !== targetId) {
+          await reorderCards(cardDragId, targetId);
+        }
+      }
+      cardDragId = null;
+    });
+
+    handle.addEventListener('touchcancel', () => {
+      isTouchDragging = false;
+      card.classList.remove('dragging');
+      if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+      gridEl.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+      cardDragId = null;
+    });
+  });
+}
+
+async function reorderCards(fromId, toId) {
+  const fromIdx = items.findIndex(i => i.id === fromId);
+  const toIdx = items.findIndex(i => i.id === toId);
+  if (fromIdx === -1 || toIdx === -1) return;
+
+  // Move the item in the array
+  const [moved] = items.splice(fromIdx, 1);
+  items.splice(toIdx, 0, moved);
+
+  // Update sort_order locally
+  items.forEach((item, i) => item.sort_order = i);
+
+  // Re-render immediately for snappy feedback
+  const activeTab = tabsEl.querySelector('button.active').textContent;
+  render(activeTab);
+
+  // Persist to API
+  const ordered_ids = items.map(i => i.id);
+  await fetchAPI('reorder', {
+    method: 'POST',
+    body: JSON.stringify({ ordered_ids })
+  });
+}
 
 // Image compression - resize to max 1200px and compress to JPEG
 function compressImage(dataUrl,maxWidth=1200,quality=0.8){
