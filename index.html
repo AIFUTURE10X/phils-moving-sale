@@ -96,14 +96,15 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f}
 .reorder-modal .btn-save{background:#0f3460;color:#fff}
 .bulk-modal .btn-save{background:#0f3460;color:#fff}
 .bulk-modal .btn-save:hover{background:#1a4a7a}
-.card{position:relative}
-.card .move-controls{position:absolute;top:50%;right:-14px;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px;z-index:20;opacity:0;transition:opacity .2s}
-.card:hover .move-controls{opacity:1}
-.move-controls button{width:28px;height:28px;border:none;border-radius:6px;background:rgba(15,52,96,.85);color:#fff;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:background .15s;padding:0;line-height:1}
-.move-controls button:hover{background:rgba(15,52,96,1)}
-.card .move-left{position:absolute;top:50%;left:-14px;transform:translateY(-50%);z-index:20;opacity:0;transition:opacity .2s;width:28px;height:28px;border:none;border-radius:6px;background:rgba(15,52,96,.85);color:#fff;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
-.card:hover .move-left{opacity:1}
-.card .move-left:hover{background:rgba(15,52,96,1)}
+.card{position:relative;overflow:visible}
+.card .move-dpad{position:absolute;bottom:8px;left:8px;z-index:20;opacity:0;transition:opacity .2s;display:grid;grid-template-columns:26px 26px 26px;grid-template-rows:26px 26px 26px;gap:2px}
+.card:hover .move-dpad{opacity:1}
+.move-dpad button{width:26px;height:26px;border:none;border-radius:5px;background:rgba(15,52,96,.8);color:#fff;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;transition:background .15s;padding:0;line-height:1}
+.move-dpad button:hover{background:rgba(15,52,96,1)}
+.move-dpad .dpad-up{grid-column:2;grid-row:1}
+.move-dpad .dpad-left{grid-column:1;grid-row:2}
+.move-dpad .dpad-right{grid-column:3;grid-row:2}
+.move-dpad .dpad-down{grid-column:2;grid-row:3}
 .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center;flex-direction:column}
 .lightbox.show{display:flex}
 .lightbox img{max-width:90%;max-height:80%;object-fit:contain;border-radius:8px}
@@ -402,7 +403,7 @@ function render(cat){
     const badgeClass=status==='sold'?'badge-sold':'badge-available';
     const badgeText=status==='sold'?'Sold':'Available';
     
-    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><button class="move-left" data-item-id="${itemId}" title="Move left">◀</button><div class="move-controls"><button class="move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':''}<div class="cat-label" data-item-id="${itemId}" data-field="category">${cat}</div><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
+    gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><div class="move-dpad"><button class="dpad-up move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="dpad-left move-left" data-item-id="${itemId}" title="Move left">◀</button><button class="dpad-right move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="dpad-down move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':''}<div class="cat-label" data-item-id="${itemId}" data-field="category">${cat}</div><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
   });
   // Add "Add New Item" card at end
   gridEl.innerHTML+=`<div class="add-item-card" id="addItemCard"><div class="plus">+</div><span>Add New Item</span></div>`;
