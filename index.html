@@ -435,7 +435,7 @@ function render(cat){
         const dir=parseInt(btn.getAttribute('data-dir'));
         const len=photos[itemId]?.length||0;
         slidePos[itemId]=(slidePos[itemId]+dir+len)%len;
-        const activeTab=tabsEl.querySelector('button.active').textContent;
+        const activeTab=tabsEl.querySelector('button.active').dataset.cat;
         render(activeTab);
       });
     });
@@ -456,7 +456,7 @@ function render(cat){
         await deletePhotoFromDB(photoToDelete.id);
         photos[itemId].splice(delPhotoIdx,1);
         if(slidePos[itemId]>=photos[itemId].length) slidePos[itemId]=Math.max(0,photos[itemId].length-1);
-        const activeTab=tabsEl.querySelector('button.active').textContent;
+        const activeTab=tabsEl.querySelector('button.active').dataset.cat;
         render(activeTab);
       }
     });
@@ -486,7 +486,7 @@ function render(cat){
             if(item) {
               item[field]=ta.value;
               await updateItemInDB(itemId,{[field]:ta.value});
-              const activeTab=tabsEl.querySelector('button.active').textContent;
+              const activeTab=tabsEl.querySelector('button.active').dataset.cat;
               render(activeTab);
             }
           });
@@ -502,7 +502,7 @@ function render(cat){
             if(item) {
               item[field]=inp.value;
               await updateItemInDB(itemId,{[field]:inp.value});
-              const activeTab=tabsEl.querySelector('button.active').textContent;
+              const activeTab=tabsEl.querySelector('button.active').dataset.cat;
               render(activeTab);
             }
           });
@@ -521,7 +521,7 @@ function render(cat){
         if(item) {
           item.category=sel.value;
           await updateItemInDB(itemId,{category:sel.value});
-          const activeTab=tabsEl.querySelector('button.active').textContent;
+          const activeTab=tabsEl.querySelector('button.active').dataset.cat;
           render(activeTab);
         }
       });
@@ -538,7 +538,7 @@ function render(cat){
         items=items.filter(i=>i.id!==itemId);
         delete photos[itemId];
         delete slidePos[itemId];
-        const activeTab=tabsEl.querySelector('button.active').textContent;
+        const activeTab=tabsEl.querySelector('button.active').dataset.cat;
         render(activeTab);
       }
     });
@@ -560,7 +560,7 @@ function render(cat){
           }
           loaded++;
           if(loaded===files.length){
-            const activeTab=tabsEl.querySelector('button.active').textContent;
+            const activeTab=tabsEl.querySelector('button.active').dataset.cat;
             render(activeTab);
           }
         };
@@ -591,7 +591,7 @@ async function moveItem(itemId, direction, steps=1) {
   
   if (success) {
     await loadData();
-    const activeTab = tabsEl.querySelector('button.active').textContent;
+    const activeTab = tabsEl.querySelector('button.active').dataset.cat;
     render(activeTab);
   }
 }
@@ -742,7 +742,7 @@ async function reorderCards(fromId, toId) {
   items.forEach((item, i) => item.sort_order = i);
 
   // Re-render immediately for snappy feedback
-  const activeTab = tabsEl.querySelector('button.active').textContent;
+  const activeTab = tabsEl.querySelector('button.active').dataset.cat;
   render(activeTab);
 
   // Persist to API
@@ -894,7 +894,7 @@ reorderSaveBtn.addEventListener('click',async()=>{
   }
   
   reorderModal.classList.remove('show');
-  const activeTab=tabsEl.querySelector('button.active').textContent;
+  const activeTab=tabsEl.querySelector('button.active').dataset.cat;
   render(activeTab);
 });
 
@@ -1013,7 +1013,7 @@ bulkSave.addEventListener('click',async()=>{
   
   bulkModal.classList.remove('show');
   bulkInput.value='';
-  const activeTab=tabsEl.querySelector('button.active').textContent;
+  const activeTab=tabsEl.querySelector('button.active').dataset.cat;
   render(activeTab);
 });
 
@@ -1034,7 +1034,7 @@ gridEl.addEventListener('click',e=>{
     document.getElementById('addPrice').value='';
     addCatSelect.value=cats[1];// default to first real category
     // If we're on a specific tab, pre-select that category
-    const activeTab=tabsEl.querySelector('button.active').textContent;
+    const activeTab=tabsEl.querySelector('button.active').dataset.cat;
     if(activeTab!=='All')addCatSelect.value=activeTab;
     addModal.classList.add('show');
   }
@@ -1058,14 +1058,16 @@ document.getElementById('addSave').addEventListener('click',async()=>{
     photos[newItem.id]=[];
     slidePos[newItem.id]=0;
     addModal.classList.remove('show');
-    const activeTab=tabsEl.querySelector('button.active').textContent;
+    const activeTab=tabsEl.querySelector('button.active').dataset.cat;
     render(activeTab);
   }
 });
 
+const catIcons={"All":"🏠","Furniture":"🪑","Appliances":"⚡","Kitchen":"🍳","Electronics":"📺","Bedroom/Bathroom":"🛏️","Car":"🚗","Misc":"📦"};
 cats.forEach(c=>{
   const b=document.createElement("button");
-  b.textContent=c;
+  b.innerHTML=`<span style="font-size:1.3em">${catIcons[c]||'📋'}</span> ${c}`;
+  b.dataset.cat=c;
   if(c==="All")b.classList.add("active");
   b.onclick=()=>{
     tabsEl.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
@@ -1078,7 +1080,7 @@ cats.forEach(c=>{
 });
 // Add List tab
 const listBtn=document.createElement("button");
-listBtn.textContent="📋 List";
+listBtn.innerHTML='<span style="font-size:1.3em">📋</span> List';listBtn.dataset.cat="List";
 listBtn.onclick=()=>{
   tabsEl.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
   listBtn.classList.add("active");
