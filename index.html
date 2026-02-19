@@ -49,6 +49,9 @@ body.public .move-dpad,body.public .del-btn,body.public .add-more,body.public .r
 body.public .editable{cursor:default!important}
 body.public .card-gallery .placeholder{cursor:default}
 body.public .card-gallery .placeholder:hover{background:#e8ecf1}
+body.public .card-gallery .placeholder span{font-size:.8rem;color:#bbb}
+body.public .card-gallery .placeholder svg{opacity:.25}
+body.public .card-gallery input[type=file]{display:none!important}
 .card-body{padding:1.1rem 1.2rem 1.2rem}
 .card-body h3{font-size:1.05rem;font-weight:700;margin-bottom:.35rem;color:#1d1d1f}
 .card-price{font-size:.95rem;color:#0f3460;font-weight:600;margin-bottom:.4rem}
@@ -397,7 +400,8 @@ function render(cat){
 
     let galleryInner='';
     if(imgs.length===0){
-      galleryInner=`<div class="slides"><div class="slide"><div class="placeholder">${svg}<span>Click to add photos</span></div></div></div>`;
+      const placeholderText=isPublic?'No photo available':'Click to add photos';
+      galleryInner=`<div class="slides"><div class="slide"><div class="placeholder">${isPublic?'':svg}<span>${placeholderText}</span></div></div></div>`;
     } else {
       const slidesHTML=imgs.map(src=>`<div class="slide"><img src="${src}"></div>`).join('');
       const dotsHTML=imgs.length>1?`<div class="dots">${imgs.map((_,i)=>`<div class="dot${i===pos?' active':''}"></div>`).join('')}</div>`:'';
