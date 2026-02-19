@@ -199,13 +199,13 @@ body.public .card-gallery input[type=file]{display:none!important}
 <div class="deposit-popup-overlay" id="depositPopup">
 <div class="deposit-popup">
 <div class="popup-icon">🏠✈️</div>
-<h2>Moving out 28th March — Everything Must Go!</h2>
+<h2>Moving to Thailand — Everything Must Go!</h2>
 <div class="popup-highlight">
-📅 Some items are <strong>available for pickup from 24 or 28 March only</strong> (still in use until we move).<br><br>
+📅 Some items are <strong>available for pickup from 24 or 27 March only</strong> (still in use until we move).<br><br>
 💰 To secure these items, a <strong>50% non-refundable deposit</strong> is required. Balance due on pickup day.
 </div>
 <div class="popup-items">
-<strong>24 March:</strong> Washer &amp; Dryer<br><strong>28 March:</strong> Beds, Fridge, Lounge Chairs &amp; other daily-use items
+<strong>24 March:</strong> Washer &amp; Dryer<br><strong>27 March:</strong> Beds, Fridge, Lounge Chairs &amp; other daily-use items
 </div>
 <button class="popup-btn" id="popupClose">👍 Got it, let me browse!</button>
 </div>
@@ -213,7 +213,7 @@ body.public .card-gallery input[type=file]{display:none!important}
 
 <!-- Persistent deposit banner -->
 <div class="deposit-banner">
-📅 Some items <strong>available from 24 or 28 March only</strong> — 50% deposit required to secure. <a href="tel:0412397443">Call Phil</a> to arrange.
+📅 Some items <strong>available from 24 or 27 March only</strong> — 50% deposit required to secure. <a href="tel:0412397443">Call Phil</a> to arrange.
 </div>
 
 <div class="header">
@@ -422,7 +422,7 @@ function render(cat){
     const badgeText=status==='sold'?'Sold':'Available';
     const allCats=["Furniture","Appliances","Kitchen","Electronics","Bedroom/Bathroom","Car","Misc"];
     const catOptionsHTML=allCats.map(c=>`<option value="${c}"${c===cat?' selected':''}>${c}</option>`).join('');
-    const latePickupHTML=(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% non-refundable deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% non-refundable deposit</div>':'';
+    const latePickupHTML=(typeof LATE_PICKUP_24MAR!=='undefined'&&LATE_PICKUP_24MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% non-refundable deposit</div>':(typeof LATE_PICKUP_28MAR!=='undefined'&&LATE_PICKUP_28MAR.some(lp=>name.toLowerCase().includes(lp)))?'<div class="late-pickup-tag">📅 Available from 27 March — 50% non-refundable deposit</div>':'';
 
     gridEl.innerHTML+=`<div class="card" data-item-id="${itemId}"><div class="drag-handle">⠿ Drag</div><button class="delete-item" data-item-id="${itemId}" title="Delete this item">✕</button><div class="move-dpad"><button class="dpad-up move-up-btn" data-item-id="${itemId}" title="Move up">▲</button><button class="dpad-left move-left" data-item-id="${itemId}" title="Move left">◀</button><button class="dpad-right move-right-btn" data-item-id="${itemId}" title="Move right">▶</button><button class="dpad-down move-down-btn" data-item-id="${itemId}" title="Move down">▼</button></div><div class="card-gallery" data-item-id="${itemId}">${galleryInner}<input type="file" accept="image/*" multiple></div><div class="card-body">${latePickupHTML}<select class="cat-select" data-item-id="${itemId}">${catOptionsHTML}</select><h3 class="editable" data-item-id="${itemId}" data-field="name">${name}</h3><div class="card-price editable" data-item-id="${itemId}" data-field="price">${price}</div><p class="card-desc editable" data-item-id="${itemId}" data-field="description">${desc}</p><span class="badge ${badgeClass}">${badgeText}</span></div></div>`;
   });
