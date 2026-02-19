@@ -390,7 +390,8 @@ async function reorderPhotos(itemId, photoIds) {
 
 function render(cat){
   gridEl.innerHTML="";
-  const list=cat==="All"?items:items.filter(item=>item.category===cat);
+  let list=cat==="All"?items:items.filter(item=>item.category===cat);
+  if(isPublic) list=list.filter(item=>photos[item.id]&&photos[item.id].length>0);
   list.forEach((item)=>{
     const itemId=item.id;
     if(!photos[itemId]) photos[itemId]=[];
