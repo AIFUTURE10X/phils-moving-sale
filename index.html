@@ -309,6 +309,9 @@ if (!adminKey) {
   if (adminKey) sessionStorage.setItem('adminKey', adminKey);
 }
 
+// Admin page is never public
+const isPublic = false;
+
 // Global data loaded from API
 let items = [];
 let photos = {}; // photos[item_id] = [photo objects]
