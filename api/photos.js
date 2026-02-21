@@ -1,9 +1,10 @@
 const pool = require('./db');
+const requireAdmin = require('./auth');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -33,6 +34,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'POST') {
+      if (!requireAdmin(req, res)) return;
       const { item_id, photo, order } = req.body;
 
       if (!item_id || !photo) {
@@ -58,6 +60,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'PUT') {
+      if (!requireAdmin(req, res)) return;
       const { item_id, photoIds } = req.body;
 
       if (photoIds && Array.isArray(photoIds)) {
@@ -74,6 +77,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'DELETE') {
+      if (!requireAdmin(req, res)) return;
       const { id } = req.body;
 
       if (!id) {

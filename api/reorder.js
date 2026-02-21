@@ -1,15 +1,17 @@
 const pool = require('./db');
+const requireAdmin = require('./auth');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   if (req.method === 'POST') {
+    if (!requireAdmin(req, res)) return;
     try {
       // Batch reorder: full drag-and-drop support
       if (req.body.ordered_ids && Array.isArray(req.body.ordered_ids)) {

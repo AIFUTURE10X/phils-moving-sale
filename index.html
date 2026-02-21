@@ -302,9 +302,12 @@ body.public .card-gallery input[type=file]{display:none!important}
 <div class="footer">Last updated: 16 February 2026 &nbsp;|&nbsp; Chinderah, NSW</div>
 
 <script>
-// Public mode: ?public=true hides all edit controls
-const isPublic = new URLSearchParams(window.location.search).has('public');
-if(isPublic) document.body.classList.add('public');
+// Admin password — stored in sessionStorage after first prompt
+let adminKey = sessionStorage.getItem('adminKey') || '';
+if (!adminKey) {
+  adminKey = prompt('Enter admin password:') || '';
+  if (adminKey) sessionStorage.setItem('adminKey', adminKey);
+}
 
 // Global data loaded from API
 let items = [];
@@ -320,10 +323,21 @@ const svg=`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 2
 // API helper functions
 async function fetchAPI(endpoint, options = {}) {
   try {
+    const headers = { 'Content-Type': 'application/json' };
+    // Send admin key on write operations
+    if (options.method && options.method !== 'GET') {
+      headers['x-admin-key'] = adminKey;
+    }
     const response = await fetch(`/api/${endpoint}`, {
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       ...options
     });
+    if (response.status === 401) {
+      sessionStorage.removeItem('adminKey');
+      alert('Wrong admin password. Page will reload.');
+      location.reload();
+      return null;
+    }
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return await response.json();
   } catch (error) {

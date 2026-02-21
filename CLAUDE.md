@@ -8,11 +8,13 @@
 - **Database**: Shared Neon DB (`neondb`) — same as AskConciergeAI
 
 ## Architecture
-- `index.html` — Single-page admin dashboard (all HTML, CSS, JS in one file)
+- `index.html` — Admin dashboard (password-protected editing)
+- `all-items.html` — Public read-only view (no editing, shared with buyers)
+- `api/auth.js` — Admin password check (validates `x-admin-key` header against `ADMIN_PASSWORD` env var)
 - `api/db.js` — Shared database connection pool
-- `api/items.js` — CRUD for sale items
-- `api/photos.js` — Photo upload/delete/reorder (stored as base64 in DB)
-- `api/reorder.js` — Item reordering (single-step arrows + batch drag-and-drop)
+- `api/items.js` — CRUD for sale items (GET=public, POST/PUT/DELETE=admin)
+- `api/photos.js` — Photo upload/delete/reorder (GET=public, POST/PUT/DELETE=admin)
+- `api/reorder.js` — Item reordering (POST=admin only)
 - `items.js` — Static item definitions (legacy, pre-database reference file)
 
 ## Key Features
@@ -35,14 +37,19 @@ moving_sale_items (id, name, category, description, price, status, sort_order, c
 moving_sale_photos (id, item_id, photo_url, sort_order, created_at)
 ```
 
-## Security Note
-Database credentials are still hardcoded as a fallback in `api/db.js`. To fix:
-1. Set `DATABASE_URL` environment variable in Vercel
-2. Remove the fallback connection string from `api/db.js`
+## Security
+- **Admin auth**: All write APIs require `x-admin-key` header matching `ADMIN_PASSWORD` env var
+- Admin page (`index.html`) prompts for password on load, stores in sessionStorage
+- Public page (`all-items.html`) only calls GET endpoints — no auth needed
+- Database credentials are still hardcoded as a fallback in `api/db.js`. To fix:
+  1. Set `DATABASE_URL` environment variable in Vercel
+  2. Remove the fallback connection string from `api/db.js`
 
 ## Recent Changes (Feb 2026)
-1. **Card drag-and-drop** — Added drag handles, batch reorder API, touch support
-2. **Shared DB module** — Extracted `api/db.js`, removed duplicated Pool in each API file
-3. **Category always-visible dropdown** — Replaced click-to-edit text with `<select>` on every card
-4. **Drag freeze fix** — Cards no longer shift/hover during drag operations
-5. **Cleanup** — Removed debug console.logs, stopped leaking error.message to clients
+1. **Public view** — Added `all-items.html` read-only page for sharing with buyers
+2. **Admin auth** — Password protection on all write APIs via `ADMIN_PASSWORD` env var
+3. **Card drag-and-drop** — Added drag handles, batch reorder API, touch support
+4. **Shared DB module** — Extracted `api/db.js`, removed duplicated Pool in each API file
+5. **Category always-visible dropdown** — Replaced click-to-edit text with `<select>` on every card
+6. **Drag freeze fix** — Cards no longer shift/hover during drag operations
+7. **Cleanup** — Removed debug console.logs, stopped leaking error.message to clients

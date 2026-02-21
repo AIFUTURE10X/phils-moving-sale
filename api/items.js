@@ -1,9 +1,10 @@
 const pool = require('./db');
+const requireAdmin = require('./auth');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -20,6 +21,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'POST') {
+      if (!requireAdmin(req, res)) return;
       const { name, category, description, price } = req.body;
 
       const maxOrderResult = await pool.query('SELECT COALESCE(MAX(sort_order), 0) + 1 as next_order FROM moving_sale_items');
@@ -35,6 +37,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'PUT') {
+      if (!requireAdmin(req, res)) return;
       const { id, name, category, description, price, status } = req.body;
 
       const { rows } = await pool.query(`
@@ -48,6 +51,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'DELETE') {
+      if (!requireAdmin(req, res)) return;
       const { id } = req.body;
       await pool.query('DELETE FROM moving_sale_items WHERE id = $1', [id]);
       return res.json({ success: true });

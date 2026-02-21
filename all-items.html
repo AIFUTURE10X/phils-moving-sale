@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phil's Moving Sale - Everything Must Go!</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f}
+.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;text-align:center;padding:3rem 1rem 2rem}
+.header h1{font-size:2.4rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.5px}
+.header .subtitle{font-size:1.1rem;opacity:.85;font-weight:400}
+.header .emoji-bar{font-size:1.6rem;margin-top:.8rem;letter-spacing:8px}
+.tabs-wrap{position:sticky;top:0;z-index:100;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs{display:flex;max-width:1200px;margin:0 auto;padding:0 .5rem;gap:4px}
+.tabs button{flex-shrink:0;padding:.75rem 1.2rem;border:none;background:none;font-family:inherit;font-size:.9rem;font-weight:500;color:#666;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.tabs button:hover{color:#1d1d1f}
+.tabs button.active{color:#0f3460;border-bottom-color:#0f3460;font-weight:600}
+.container{max-width:1200px;margin:0 auto;padding:1.5rem 1rem}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.header h1{font-size:1.6rem}.header .subtitle{font-size:.95rem}}
+.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.card-gallery{position:relative;height:220px;background:#e8ecf1;overflow:hidden}
+.card-gallery .slides{display:flex;height:100%;transition:transform .3s ease}
+.card-gallery .slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.card-gallery .slide img{width:100%;height:100%;object-fit:cover}
+.card-gallery .no-photo{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:#9ca3af;gap:.5rem}
+.card-gallery .no-photo svg{width:48px;height:48px;opacity:.5}
+.card-gallery .no-photo span{font-size:.85rem;font-weight:500}
+.card-gallery .nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:10;opacity:0;transition:opacity .2s}
+.card-gallery:hover .nav-btn{opacity:1}
+.card-gallery .nav-prev{left:24px}
+.card-gallery .nav-next{right:24px}
+.card-gallery .dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:10}
+.card-gallery .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5)}
+.card-gallery .dot.active{background:#fff}
+.card-gallery .img-count{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;padding:.2rem .5rem;border-radius:6px;font-size:.7rem;font-weight:600;z-index:10}
+.card-body{padding:1.1rem 1.2rem 1.2rem}
+.card-body h3{font-size:1.05rem;font-weight:700;margin-bottom:.35rem;color:#1d1d1f}
+.card-cat{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:600;color:#6b7280;margin-bottom:.3rem}
+.card-price{font-size:.95rem;color:#0f3460;font-weight:600;margin-bottom:.4rem}
+.card-desc{font-size:.85rem;color:#6b7280;line-height:1.45;margin-bottom:.7rem}
+.badge{display:inline-block;padding:.25rem .7rem;border-radius:99px;font-size:.75rem;font-weight:600;letter-spacing:.3px}
+.badge-available{background:#d1fae5;color:#065f46}
+.badge-sold{background:#fee2e2;color:#991b1b}
+.contact{text-align:center;padding:3rem 1rem;background:#fff;margin-top:2rem;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.contact h2{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
+.contact p{color:#6b7280;margin-bottom:1.2rem}
+.lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center;flex-direction:column}
+.lightbox.show{display:flex}
+.lightbox img{max-width:90%;max-height:80%;object-fit:contain;border-radius:8px}
+.lightbox .lb-close{position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;z-index:310;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+.lightbox .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.lightbox .lb-nav:hover{background:rgba(255,255,255,.3)}
+.lightbox .lb-prev{left:16px}
+.lightbox .lb-next{right:16px}
+.lightbox .lb-caption{color:#fff;margin-top:1rem;font-size:.95rem;font-weight:500;text-align:center}
+.lightbox .lb-counter{color:rgba(255,255,255,.6);font-size:.8rem;margin-top:.3rem}
+.footer{text-align:center;padding:2rem 1rem;color:#9ca3af;font-size:.8rem}
+.late-pickup-tag{display:inline-flex;align-items:center;gap:.3rem;background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:99px;margin-bottom:.3rem;letter-spacing:.3px}
+/* Deposit popup overlay */
+.deposit-popup-overlay{display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;animation:fadeIn .3s}
+.deposit-popup-overlay.hidden{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.deposit-popup{background:#fff;border-radius:20px;padding:2.5rem 2rem;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.deposit-popup .popup-icon{font-size:3rem;margin-bottom:.8rem}
+.deposit-popup h2{font-size:1.4rem;font-weight:800;color:#1d1d1f;margin-bottom:.6rem}
+.deposit-popup .popup-highlight{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;border-radius:12px;padding:1.2rem;margin:1rem 0;font-size:.95rem;line-height:1.5}
+.deposit-popup .popup-highlight strong{color:#fbbf24}
+.deposit-popup .popup-items{font-size:.85rem;color:#6b7280;margin:.8rem 0;line-height:1.6}
+.deposit-popup .popup-items strong{color:#1d1d1f}
+.deposit-popup .popup-btn{background:#0f3460;color:#fff;border:none;padding:.8rem 2.5rem;border-radius:99px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;margin-top:.5rem}
+.deposit-popup .popup-btn:hover{background:#1a4a7a}
+/* Deposit banner */
+.deposit-banner{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;text-align:center;padding:1.4rem 1.2rem;font-size:1.15rem;font-weight:600;line-height:1.6;letter-spacing:.2px;position:sticky;top:0;z-index:150}
+.deposit-banner strong{color:#fbbf24}
+.deposit-banner a{color:#fbbf24;text-decoration:underline}
+.list-view{display:none;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06)}
+.list-view.active{display:block}
+.list-row{display:flex;align-items:center;padding:.75rem 1.2rem;transition:background .15s;border-bottom:1px solid #f0f0f0;gap:1rem}
+.list-row:last-child{border-bottom:none}
+.list-row:nth-child(even){background:#fafbfc}
+.list-row:hover{background:#eef2ff}
+.list-row .row-name{font-weight:700;font-size:.95rem;color:#1d1d1f;flex-shrink:0;min-width:140px}
+.list-row .row-desc{flex:1;font-size:.85rem;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.list-row .row-cat{font-size:.7rem;font-weight:600;background:#dbeafe;color:#1e40af;padding:.2rem .6rem;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.list-row .row-price{font-weight:600;font-size:.9rem;color:#0f3460;white-space:nowrap;text-align:right;flex-shrink:0;min-width:80px}
+.list-row .row-status{font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:99px;flex-shrink:0}
+.list-row .row-status.available{background:#dcfce7;color:#166534}
+.list-row .row-status.sold{background:#fee2e2;color:#991b1b}
+@media(max-width:560px){.list-row{flex-wrap:wrap;gap:.3rem;padding:.7rem 1rem}.list-row .row-desc{display:none}.list-row .row-name{flex:1}.list-row .row-price{margin-left:auto}}
+</style>
+</head>
+<body>
+<!-- Deposit popup on first visit -->
+<div class="deposit-popup-overlay" id="depositPopup">
+<div class="deposit-popup">
+<div class="popup-icon">🏠✈️</div>
+<h2>Moving to Thailand — Everything Must Go!</h2>
+<div class="popup-highlight">
+📅 Some items are <strong>available for pickup from 24 or 28 March only</strong> (still in use until we move).<br><br>
+💰 To secure these items, a <strong>50% non-refundable deposit</strong> is required. Balance due on pickup day.
+</div>
+<div class="popup-items">
+<strong>24 March:</strong> Washer &amp; Dryer<br><strong>28 March:</strong> Beds, Fridge, Lounge Chairs &amp; other daily-use items
+</div>
+<button class="popup-btn" id="popupClose">👍 Got it, let me browse!</button>
+</div>
+</div>
+
+<!-- Persistent deposit banner -->
+<div class="deposit-banner">
+📅 Some items <strong>available from 24 or 28 March only</strong> — 50% deposit required to secure. <a href="tel:0412397443">Call Phil</a> to arrange.
+</div>
+
+<div class="header">
+<h1>Phil's Moving Sale - Everything Must Go!</h1>
+<p class="subtitle">Chinderah, NSW - Moving to Thailand, all items must sell!</p>
+<div class="emoji-bar">🏠 ✈️ 🇹🇭</div>
+<p style="margin-top:1rem;font-size:1.05rem;opacity:.9;font-weight:500">📞 Contact Phil @ <a href="tel:0412397443" style="color:#fff;text-decoration:underline">0412 397 443</a> - Chinderah, NSW</p>
+</div>
+<div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+<div class="container">
+<div class="grid" id="grid"></div>
+<div class="list-view" id="listView"></div>
+<div class="contact">
+<h2>Interested in something?</h2>
+<p>Get in touch - happy to answer questions or arrange a viewing in Chinderah.</p>
+<a href="tel:0412397443" style="display:inline-flex;align-items:center;gap:.5rem;background:#0f3460;color:#fff;padding:.7rem 1.5rem;border-radius:10px;text-decoration:none;font-weight:600;font-size:1rem">
+📞 Contact Phil @ 0412 397 443 - Chinderah, NSW
+</a>
+</div>
+</div>
+<div class="lightbox" id="lightbox">
+<button class="lb-close" id="lbClose">✕</button>
+<button class="lb-nav lb-prev" id="lbPrev">‹</button>
+<button class="lb-nav lb-next" id="lbNext">›</button>
+<img id="lbImg" src="">
+<div class="lb-caption" id="lbCaption"></div>
+<div class="lb-counter" id="lbCounter"></div>
+</div>
+<div class="footer">Last updated: 16 February 2026 &nbsp;|&nbsp; Chinderah, NSW</div>
+
+<script>
+let items = [];
+let photos = {};
+let slidePos = {};
+
+const cats=["All","Furniture","Appliances","Kitchen","Electronics","Bedroom/Bathroom","Car","Misc"];
+const tabsEl=document.getElementById("tabs");
+const gridEl=document.getElementById("grid");
+
+const svg=`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>`;
+
+// Read-only API — only GET
+async function fetchAPI(endpoint) {
+  try {
+    const response = await fetch('/api/' + endpoint);
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('API ' + endpoint + ' error:', error);
+    return null;
+  }
+}
+
+async function loadData() {
+  const itemsData = await fetchAPI('items');
+  if (itemsData) items = itemsData;
+
+  const photosData = await fetchAPI('photos');
+  if (photosData) {
+    photos = photosData;
+    Object.keys(photos).forEach(function(itemId) { slidePos[itemId] = 0; });
+  }
+}
+
+// Late pickup items
+const LATE_PICKUP_28MAR = ['fridge','lounge chair','double bed','bed #1','bed #2','bundle deal'];
+const LATE_PICKUP_24MAR = ['washer','dryer','laundry combo'];
+
+function render(cat){
+  gridEl.innerHTML="";
+  const list=cat==="All"?items:items.filter(function(item){return item.category===cat;});
+  list.forEach(function(item){
+    const itemId=item.id;
+    if(!photos[itemId]) photos[itemId]=[];
+    if(!slidePos[itemId]) slidePos[itemId]=0;
+    const imgs=photos[itemId].map(function(p){return p.url||p;});
+    const pos=slidePos[itemId];
+
+    let galleryInner='';
+    if(imgs.length===0){
+      galleryInner='<div class="slides"><div class="slide"><div class="no-photo">'+svg+'<span>No photos yet</span></div></div></div>';
+    } else {
+      const slidesHTML=imgs.map(function(src){return '<div class="slide"><img src="'+src+'"></div>';}).join('');
+      const dotsHTML=imgs.length>1?'<div class="dots">'+imgs.map(function(_,i){return '<div class="dot'+(i===pos?' active':'')+'"></div>';}).join('')+'</div>':'';
+      const countHTML=imgs.length>1?'<div class="img-count">'+(pos+1)+' / '+imgs.length+'</div>':'';
+      const navHTML=imgs.length>1?'<button class="nav-btn nav-prev" data-dir="-1">‹</button><button class="nav-btn nav-next" data-dir="1">›</button>':'';
+      galleryInner='<div class="slides" style="transform:translateX(-'+pos*100+'%)">'+slidesHTML+'</div>'+dotsHTML+countHTML+navHTML;
+    }
+
+    const name=item.name;
+    const price=item.price||'Contact for price';
+    const desc=item.description||'No description';
+    const itemCat=item.category||'Misc';
+    const status=item.status||'available';
+    const badgeClass=status==='sold'?'badge-sold':'badge-available';
+    const badgeText=status==='sold'?'Sold':'Available';
+    const latePickupHTML=(LATE_PICKUP_24MAR.some(function(lp){return name.toLowerCase().includes(lp);}))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(LATE_PICKUP_28MAR.some(function(lp){return name.toLowerCase().includes(lp);}))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':'';
+
+    gridEl.innerHTML+='<div class="card" data-item-id="'+itemId+'"><div class="card-gallery" data-item-id="'+itemId+'">'+galleryInner+'</div><div class="card-body">'+latePickupHTML+'<div class="card-cat">'+itemCat+'</div><h3>'+name+'</h3><div class="card-price">'+price+'</div><p class="card-desc">'+desc+'</p><span class="badge '+badgeClass+'">'+badgeText+'</span></div></div>';
+  });
+
+  // Attach read-only handlers (navigation + lightbox only)
+  gridEl.querySelectorAll('.card-gallery').forEach(function(el){
+    const itemId=parseInt(el.getAttribute('data-item-id'));
+
+    // Nav buttons
+    el.querySelectorAll('.nav-btn').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        const dir=parseInt(btn.getAttribute('data-dir'));
+        const len=photos[itemId]?.length||0;
+        slidePos[itemId]=(slidePos[itemId]+dir+len)%len;
+        var activeTab=tabsEl.querySelector('button.active').textContent;
+        render(activeTab);
+      });
+    });
+
+    // Click image to open lightbox
+    el.querySelectorAll('.slide img').forEach(function(img,si){
+      img.style.cursor='zoom-in';
+      img.addEventListener('click',function(e){e.stopPropagation();openLightbox(itemId,si);});
+    });
+  });
+}
+
+// Lightbox
+const lightbox=document.getElementById('lightbox');
+const lbImg=document.getElementById('lbImg');
+const lbCaption=document.getElementById('lbCaption');
+const lbCounter=document.getElementById('lbCounter');
+let lbIdx=0,lbItemId=0;
+
+function openLightbox(itemId,imgIdx){
+  lbItemId=itemId;lbIdx=imgIdx;
+  updateLightbox();
+  lightbox.classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function updateLightbox(){
+  const imgs=photos[lbItemId]||[];
+  if(!imgs.length){lightbox.classList.remove('show');return;}
+  const imgData=imgs[lbIdx];
+  lbImg.src=imgData?.url||imgData;
+  const item=items.find(function(item){return item.id===lbItemId;});
+  lbCaption.textContent=item?item.name:'Unknown Item';
+  lbCounter.textContent=imgs.length>1?(lbIdx+1)+' / '+imgs.length:'';
+  document.getElementById('lbPrev').style.display=imgs.length>1?'flex':'none';
+  document.getElementById('lbNext').style.display=imgs.length>1?'flex':'none';
+}
+function closeLightbox(){lightbox.classList.remove('show');document.body.style.overflow='';}
+document.getElementById('lbClose').addEventListener('click',closeLightbox);
+document.getElementById('lbPrev').addEventListener('click',function(){var len=photos[lbItemId]?.length||0;lbIdx=(lbIdx-1+len)%len;updateLightbox();});
+document.getElementById('lbNext').addEventListener('click',function(){var len=photos[lbItemId]?.length||0;lbIdx=(lbIdx+1)%len;updateLightbox();});
+lightbox.addEventListener('click',function(e){if(e.target===lightbox)closeLightbox();});
+document.addEventListener('keydown',function(e){
+  if(!lightbox.classList.contains('show'))return;
+  if(e.key==='Escape')closeLightbox();
+  if(e.key==='ArrowLeft'){var len=photos[lbItemId]?.length||0;lbIdx=(lbIdx-1+len)%len;updateLightbox();}
+  if(e.key==='ArrowRight'){var len=photos[lbItemId]?.length||0;lbIdx=(lbIdx+1)%len;updateLightbox();}
+});
+
+// Tabs
+cats.forEach(function(c){
+  var b=document.createElement("button");
+  b.textContent=c;
+  if(c==="All")b.classList.add("active");
+  b.onclick=function(){
+    tabsEl.querySelectorAll("button").forEach(function(x){x.classList.remove("active");});
+    b.classList.add("active");
+    document.getElementById('grid').style.display='';
+    document.getElementById('listView').classList.remove('active');
+    render(c);
+  };
+  tabsEl.appendChild(b);
+});
+// List tab
+var listBtn=document.createElement("button");
+listBtn.textContent="📋 List";
+listBtn.onclick=function(){
+  tabsEl.querySelectorAll("button").forEach(function(x){x.classList.remove("active");});
+  listBtn.classList.add("active");
+  document.getElementById('grid').style.display='none';
+  document.getElementById('listView').classList.add('active');
+  renderListView();
+};
+tabsEl.appendChild(listBtn);
+
+function renderListView(){
+  var lv=document.getElementById('listView');
+  lv.innerHTML='';
+  if(!items.length){lv.innerHTML='<div style="text-align:center;padding:3rem;color:#9ca3af">No items yet</div>';return;}
+  items.forEach(function(item){
+    var status=item.status||'available';
+    var statusText=status==='sold'?'Sold':'Available';
+    var row=document.createElement('div');
+    row.className='list-row';
+    row.innerHTML='<span class="row-name">'+item.name+'</span><span class="row-desc">'+(item.description||'No description')+'</span><span class="row-cat">'+item.category+'</span><span class="row-status '+status+'">'+statusText+'</span><span class="row-price">'+(item.price||'Contact')+'</span>';
+    lv.appendChild(row);
+  });
+}
+
+// Deposit popup - show once per session
+var depositPopup = document.getElementById('depositPopup');
+var popupCloseBtn = document.getElementById('popupClose');
+if(sessionStorage.getItem('depositPopupSeen')){
+  depositPopup.classList.add('hidden');
+}
+popupCloseBtn.addEventListener('click',function(){
+  depositPopup.classList.add('hidden');
+  sessionStorage.setItem('depositPopupSeen','1');
+});
+depositPopup.addEventListener('click',function(e){
+  if(e.target===depositPopup){depositPopup.classList.add('hidden');sessionStorage.setItem('depositPopupSeen','1');}
+});
+
+// Start the app — read-only load
+async function initApp() {
+  await loadData();
+  render("All");
+}
+
+initApp().catch(function(error) {
+  console.error('Failed to initialize app:', error);
+  render("All");
+});
+</script>
+</body>
+</html>
