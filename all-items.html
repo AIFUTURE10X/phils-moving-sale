@@ -330,6 +330,19 @@ depositPopup.addEventListener('click',function(e){
   if(e.target===depositPopup){depositPopup.classList.add('hidden');sessionStorage.setItem('depositPopupSeen','1');}
 });
 
+// Auto-refresh every 30 seconds — silently updates data without disrupting the view
+setInterval(async function() {
+  await loadData();
+  var activeTab = tabsEl.querySelector('button.active');
+  if (!activeTab) return;
+  var tabText = activeTab.textContent;
+  if (tabText === '📋 List') {
+    renderListView();
+  } else {
+    render(tabText);
+  }
+}, 30000);
+
 // Start the app — read-only load
 async function initApp() {
   await loadData();
