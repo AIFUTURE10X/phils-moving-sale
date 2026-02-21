@@ -185,7 +185,8 @@ const LATE_PICKUP_24MAR = ['washer','dryer','laundry combo'];
 
 function render(cat){
   gridEl.innerHTML="";
-  const list=cat==="All"?items:items.filter(function(item){return item.category===cat;});
+  const all=cat==="All"?items:items.filter(function(item){return item.category===cat;});
+  const list=all.filter(function(item){return photos[item.id]&&photos[item.id].length>0;});
   list.forEach(function(item){
     const itemId=item.id;
     if(!photos[itemId]) photos[itemId]=[];
@@ -305,8 +306,9 @@ tabsEl.appendChild(listBtn);
 function renderListView(){
   var lv=document.getElementById('listView');
   lv.innerHTML='';
-  if(!items.length){lv.innerHTML='<div style="text-align:center;padding:3rem;color:#9ca3af">No items yet</div>';return;}
-  items.forEach(function(item){
+  var visibleItems=items.filter(function(item){return photos[item.id]&&photos[item.id].length>0;});
+  if(!visibleItems.length){lv.innerHTML='<div style="text-align:center;padding:3rem;color:#9ca3af">No items yet</div>';return;}
+  visibleItems.forEach(function(item){
     var status=item.status||'available';
     var statusText=status==='sold'?'Sold':'Available';
     var row=document.createElement('div');
