@@ -304,9 +304,38 @@ body.public .card-gallery input[type=file]{display:none!important}
 <script>
 // Admin password — stored in sessionStorage after first prompt
 let adminKey = sessionStorage.getItem('adminKey') || '';
-if (!adminKey) {
-  adminKey = prompt('Enter admin password:') || '';
-  if (adminKey) sessionStorage.setItem('adminKey', adminKey);
+
+// Validate password against the server
+async function verifyPassword(key) {
+  try {
+    const resp = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': key }
+    });
+    return resp.ok;
+  } catch { return false; }
+}
+
+// Prompt for password and validate it before proceeding
+async function ensureLogin() {
+  if (adminKey) {
+    const valid = await verifyPassword(adminKey);
+    if (valid) return true;
+    // Stored password is stale — clear it
+    adminKey = '';
+    sessionStorage.removeItem('adminKey');
+  }
+  while (true) {
+    const key = prompt('Enter admin password:');
+    if (!key) return false; // user cancelled
+    const valid = await verifyPassword(key);
+    if (valid) {
+      adminKey = key;
+      sessionStorage.setItem('adminKey', key);
+      return true;
+    }
+    alert('Wrong password. Try again.');
+  }
 }
 
 // Admin page is never public
@@ -336,10 +365,14 @@ async function fetchAPI(endpoint, options = {}) {
       ...options
     });
     if (response.status === 401) {
-      sessionStorage.removeItem('adminKey');
-      alert('Wrong admin password. Page will reload.');
-      location.reload();
-      return null;
+      // Re-prompt without reloading the page
+      const loggedIn = await ensureLogin();
+      if (!loggedIn) return null;
+      // Retry the request with the new key
+      headers['x-admin-key'] = adminKey;
+      const retry = await fetch(`/api/${endpoint}`, { headers, ...options });
+      if (!retry.ok) throw new Error(`API error: ${retry.status}`);
+      return await retry.json();
     }
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return await response.json();
@@ -1204,6 +1237,7 @@ gridEl.addEventListener('click',e=>{
 
 // Initialize the app
 async function initApp() {
+  await ensureLogin();
   await loadData();
   render("All");
 }
