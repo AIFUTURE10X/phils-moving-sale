@@ -102,11 +102,11 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f}
 <div class="popup-icon">🏠✈️</div>
 <h2>Moving to Thailand — Everything Must Go!</h2>
 <div class="popup-highlight">
-📅 Some items are <strong>available for pickup from 24 or 28 March only</strong> (still in use until we move).<br><br>
+📅 Some items are <strong>available for pickup from 23 March only</strong> (still in use until we move).<br><br>
 💰 To secure these items, a <strong>50% non-refundable deposit</strong> is required. Balance due on pickup day.
 </div>
 <div class="popup-items">
-<strong>24 March:</strong> Washer &amp; Dryer<br><strong>28 March:</strong> Beds, Fridge, Lounge Chairs &amp; other daily-use items
+<strong>23 March:</strong> All items including Washer, Dryer, Beds, Fridge, Lounge Chairs &amp; other daily-use items
 </div>
 <button class="popup-btn" id="popupClose">👍 Got it, let me browse!</button>
 </div>
@@ -114,7 +114,7 @@ body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f}
 
 <!-- Persistent deposit banner -->
 <div class="deposit-banner">
-📅 Some items <strong>available from 24 or 28 March only</strong> — 50% deposit required to secure. <a href="tel:0412397443">Call Phil</a> to arrange.
+📅 Some items <strong>available from 23 March only</strong> — 50% deposit required to secure. <a href="tel:0412397443">Call Phil</a> to arrange.
 </div>
 
 <div class="header">
@@ -212,7 +212,7 @@ function render(cat){
     const status=item.status||'available';
     const badgeClass=status==='sold'?'badge-sold':'badge-available';
     const badgeText=status==='sold'?'Sold':'Available';
-    const latePickupHTML=(LATE_PICKUP_24MAR.some(function(lp){return name.toLowerCase().includes(lp);}))?'<div class="late-pickup-tag">📅 Available from 24 March — 50% deposit</div>':(LATE_PICKUP_28MAR.some(function(lp){return name.toLowerCase().includes(lp);}))?'<div class="late-pickup-tag">📅 Available from 28 March — 50% deposit</div>':'';
+    const latePickupHTML=(LATE_PICKUP_24MAR.some(function(lp){return name.toLowerCase().includes(lp);}))?'<div class="late-pickup-tag">📅 Available from 23 March — 50% deposit</div>':(LATE_PICKUP_28MAR.some(function(lp){return name.toLowerCase().includes(lp);}))?'<div class="late-pickup-tag">📅 Available from 23 March — 50% deposit</div>':'';
 
     gridEl.innerHTML+='<div class="card" data-item-id="'+itemId+'"><div class="card-gallery" data-item-id="'+itemId+'">'+galleryInner+'</div><div class="card-body">'+latePickupHTML+'<div class="card-cat">'+itemCat+'</div><h3>'+name+'</h3><div class="card-price">'+price+'</div><p class="card-desc">'+desc+'</p><span class="badge '+badgeClass+'">'+badgeText+'</span></div></div>';
   });
