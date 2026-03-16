@@ -3,6 +3,7 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "rewrites": [
+    { "source": "/trade", "destination": "/trade.html" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "headers": [
